@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 
-public class ItemSelector : MonoBehaviour
+public class ItemSelection : MonoBehaviour
 {
     [System.Serializable]
     public class FrameOption
@@ -13,20 +13,19 @@ public class ItemSelector : MonoBehaviour
         public InputAction input;
     }
 
-    [SerializeField] private List<FrameOption> frames = new List<FrameOption>();
+    [SerializeField] private List<FrameOption> frames;
     [SerializeField] private Color selectedColor = Color.yellow;
     [SerializeField] private Color normalColor = Color.white;
-    [SerializeField] private float transitionDuration = 0.3f;
-    
+    [SerializeField] private float transitionTime = 0.3f;
+
     private Image currentSelected;
-    private Dictionary<Image, Coroutine> activeTransitions = new Dictionary<Image, Coroutine>();
 
     private void OnEnable()
     {
         foreach (var f in frames)
         {
             f.input.Enable();
-            f.input.performed += context => OnFrameSelected(f.frame);
+            f.input.performed += ctx => SelectFrame(f.frame);
         }
     }
 
@@ -35,35 +34,38 @@ public class ItemSelector : MonoBehaviour
         foreach (var f in frames)
         {
             f.input.Disable();
+            f.input.performed -= ctx => SelectFrame(f.frame);
         }
     }
-    private IEnumerator ColorTransition(Image img, Color targetColor)
+
+    private void SelectFrame(Image selected)
     {
-        Color startColor = img.color;
+        if (currentSelected == selected)
+        {
+            StartCoroutine(ChangeColor(selected, normalColor));
+            currentSelected = null;
+            return;
+        }
+        
+        if (currentSelected != null)
+            StartCoroutine(ChangeColor(currentSelected, normalColor));
+        
+        StartCoroutine(ChangeColor(selected, selectedColor));
+        currentSelected = selected;
+    }
+
+    private IEnumerator ChangeColor(Image img, Color target)
+    {
+        Color start = img.color;
         float elapsed = 0f;
 
-        while (elapsed < transitionDuration)
+        while (elapsed < transitionTime)
         {
             elapsed += Time.deltaTime;
-            img.color = Color.Lerp(startColor, targetColor, elapsed / transitionDuration);
+            img.color = Color.Lerp(start, target, elapsed / transitionTime);
             yield return null;
         }
 
-        img.color = targetColor;
-    }
-    private void StartColorTransition(Image img, Color targetColor)
-    {
-        if (activeTransitions.ContainsKey(img) && activeTransitions[img] != null)
-            StopCoroutine(activeTransitions[img]);
-
-        activeTransitions[img] = StartCoroutine(ColorTransition(img, targetColor));
-    }
-    private void OnFrameSelected(Image selected)
-    {
-        if (currentSelected != null)
-            StartColorTransition(currentSelected, normalColor);
-        
-        StartColorTransition(selected, selectedColor);
-        currentSelected = selected;
+        img.color = target;
     }
 }

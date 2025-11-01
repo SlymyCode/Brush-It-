@@ -62,6 +62,7 @@ public class PlayerMovement : MonoBehaviour
         
         Vector3 moveDirection = forward * moveInput.y + right * moveInput.x;
         float currentSpeed = Mathf.Lerp(speed, speed * speedMultiplier, animator.GetFloat("MovementStrength"));
+        /*float currentSpeed = speed * speedMultiplier;*/
         controller.Move(moveDirection * (currentSpeed * Time.deltaTime));
 
 
@@ -83,6 +84,5 @@ public class PlayerMovement : MonoBehaviour
         {
             animator.SetFloat("MovementStrength", 0f, animTransition, Time.deltaTime);
         }
-        
     }
 }
