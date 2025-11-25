@@ -9,7 +9,9 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float speed = 5f;
     [SerializeField] private float gravity = -9.8f;
     [SerializeField] private bool ShouldFaceMoveDirection = false;
-    [SerializeField] private float animTransition = 0.2f;
+    [SerializeField] private float toIdleTransition = 0.2f;
+    [SerializeField] private float walkTransition = 0.2f;
+    [SerializeField] private float runTransition = 0.2f;
     [SerializeField] private float runMult = 1f;
     
     private CharacterController controller;
@@ -109,12 +111,18 @@ public class PlayerMovement : MonoBehaviour
         if (moveInput.sqrMagnitude > 0.01f)
         {
             float strength = (speedMultiplier > 1f) ? 1f : 0.5f;
-            animator.SetFloat("MovementStrength", strength, animTransition, Time.deltaTime);
+            animator.SetFloat("MovementStrength", strength, walkTransition, Time.deltaTime);
+            turnLayerWeight = Mathf.Lerp(turnLayerWeight, 0f, turnLayerSmoothSpeed * Time.deltaTime);
+        }
+        else if (moveInput.sqrMagnitude > 0.5f)
+        {
+            float strength = (speedMultiplier > 1f) ? 1f : 0.5f;
+            animator.SetFloat("MovementStrength", strength, runTransition, Time.deltaTime);
             turnLayerWeight = Mathf.Lerp(turnLayerWeight, 0f, turnLayerSmoothSpeed * Time.deltaTime);
         }
         else
         {
-            animator.SetFloat("MovementStrength", 0f, animTransition, Time.deltaTime);
+            animator.SetFloat("MovementStrength", 0f, toIdleTransition, Time.deltaTime);
             turnLayerWeight = Mathf.Lerp(turnLayerWeight, 0.8f, turnLayerSmoothSpeed * Time.deltaTime);
         }
         
