@@ -55,13 +55,14 @@ public class PlayerMovement : MonoBehaviour
         lookInput = context.ReadValue<Vector2>();
     }
 
-//    public void OnJump(InputAction.CallbackContext context)
-//   {
-//        if (context.performed && controller.isGrounded)
-//        {
-//            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
-//        }
-//    }
+    //Jump no usado
+   public void Jump()
+    {
+        if (Keyboard.current.spaceKey.wasPressedThisFrame && controller.isGrounded)
+        {
+            velocity.y = Mathf.Sqrt(2 * -2f * gravity);
+        }
+    }
     
     void Update()
     {
@@ -98,11 +99,13 @@ public class PlayerMovement : MonoBehaviour
                 Quaternion targetRot = Quaternion.LookRotation(dir, Vector3.up);
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, rotationSpeed * Time.deltaTime);
             }
+            /*
             else if (dir.sqrMagnitude < 0.001f)
             {
                 Quaternion targetRot = Quaternion.LookRotation(camForward, Vector3.up);
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, rotationSpeed * Time.deltaTime);
             }
+            */
         }
         
         velocity.y += gravity * Time.deltaTime;

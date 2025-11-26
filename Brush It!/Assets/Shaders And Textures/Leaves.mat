@@ -1,0 +1,91 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-3562206987528741765
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Editor::UnityEditor.Rendering.Universal.AssetVersion
+  version: 10
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Leaves
+  m_Shader: {fileID: -6465566751694194690, guid: 96e91b863f7679640b3565db701f31db, type: 3}
+  m_Parent: {fileID: 2100000, guid: 8e8d2401428e8ed47afb459b51200b61, type: 2}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords:
+  - EFFECT_HUE_VARIATION
+  - GEOM_TYPE_LEAF
+  - _BEND_ON
+  - _CULLBACKFACES_ON
+  - _CULLFRONTFACES_ON
+  - _EMISSIVE_SIMPLE
+  - _FLOAT0_ON
+  - _FLOAT1_ON
+  - _IS_ANGELRING_OFF
+  - _IS_CLIPPING_TRANSMODE
+  - _IS_OUTLINE_CLIPPING_YES
+  - _OUTLINE_POS
+  - _SHOWBACKFACES_ON
+  - _SHOWFRONTFACES_ON
+  - _WIGGLE_ON
+  - _WIND_ON
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap:
+    IgnoreProjection: False
+  disabledShaderPasses:
+  - MOTIONVECTORS
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BaseMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: f6ca14d1b28767248b6da146831632a1, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTexture:
+        m_Texture: {fileID: 2800000, guid: f6ca14d1b28767248b6da146831632a1, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TerrainColor:
+        m_Texture: {fileID: 2800000, guid: 388f2f1cf74926b4b87216b23523d64d, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _Cull: 0
+    - _GlossMapScale: 1
+    - _GlossyReflections: 1
+    - _HeightBlend: 3.06
+    - _Parallax: 0.02
+    - _TerrainOffset: 25
+    - _TerrainSize: 40
+    m_Colors:
+    - _BaseColor: {r: 0.9960785, g: 0.81568635, b: 0.49411768, a: 1}
+    - _BottomColor: {r: 0.63522005, g: 0.5812951, b: 0.17778167, a: 1}
+    - _Color: {r: 0.99607843, g: 0.81568635, b: 0.49411762, a: 1}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 0}
+    - _FarColor: {r: 0.7484276, g: 0.6062373, b: 0.3083145, a: 1}
+    - _NearColor: {r: 0.5597484, g: 0.4238327, b: 0.1390569, a: 1}
+    - _NearFarRange: {r: 7, g: 15, b: 0, a: 0}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
