@@ -1,145 +1,173 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections;
 using UnityEngine.InputSystem;
 
 public class CleanTrashEvent : MonoBehaviour
 {
-    [Header("Configs")]
-    [SerializeField] private float angleOffset = 0f;
-    [SerializeField] private Key key = Key.E;
-    [SerializeField] private int maxHitsToWin = 3;
-    private int hitsToWin = 0;
-    [SerializeField] private int maxFails = 3;
+    public Image circleFill;           
+    public RectTransform circleAnim;   
+    public TextMeshProUGUI keyText;    
+    
+    public int minRounds = 3;
+    public int maxRounds = 7;
 
-    [Header("Speed")]
-    [SerializeField] private float baseSpeed = 100f;
-    [SerializeField] private float maxSpeed = 300f;
-    [SerializeField] private float speedIncrease = 25f;
+    private int targetRounds;
+    private int currentRounds;
+    
+    public float popScale = 1.2f;
+    public float popDuration = 0.12f;
+    public float shakeAmount = 12f;
+    public float shakeDuration = 0.1f;
+    
+    public AudioSource audioSource;
+    
+    public AudioClip[] correctSounds;
+    public AudioClip[] wrongSounds;
+    
+    private int correctIndex = 0;
+    private int wrongIndex = 0;
 
-    [Header("Safe Zone")]
-    [SerializeField, Range(0f, 1f)] private float initialZoneSize = 0.25f;
-    [SerializeField, Range(0f, 1f)] private float minZoneSize = 0.05f;
-    [SerializeField] private float zoneShrink = 0.05f;
 
-    [Header("UI Objects")] 
-    [SerializeField] private RectTransform rotatingGroup;
-    [SerializeField] private Image rotatingBar;
-    [SerializeField] private Image successZone;
-    [SerializeField] private TextMeshProUGUI counterText;
-    [SerializeField] private GameObject targetObject;
+    private Key currentKey;
 
-    private float currentAngle;
-    private float speed;
-    private int hits;
-    private int fails;
-    private float zoneStart;
-    private float currentZoneSize;
-    private bool active;
+    bool inputEnabled = true;
 
+    public System.Action OnSuccess;
+    public System.Action OnFail;
+
+    private Key[] validKeys = { Key.R, Key.T, Key.Y, Key.U };
+    
     void Start()
     {
-        ResetQTE();
+        StartNewSession();
     }
 
     void Update()
     {
-        if (!active) return;
+        if (!inputEnabled) return;
         
-        currentAngle += speed * Time.deltaTime;
-        currentAngle %= 360f;
-        rotatingGroup.localEulerAngles = new Vector3(0, 0, -currentAngle);
-
-        if (Keyboard.current[key].wasPressedThisFrame)
+        foreach (var k in validKeys)
         {
-            float barWorldZ = rotatingBar.rectTransform.eulerAngles.z;
-            float barAngle = Mathf.Repeat(-barWorldZ + angleOffset, 360f);
-            
-            float zoneCenter = Mathf.Repeat(zoneStart + (currentZoneSize * 360f) / 2f, 360f);
-            
-            float diff = Mathf.Abs(Mathf.DeltaAngle(barAngle, zoneCenter));
-            
-            float halfZoneAngle = (currentZoneSize * 360f) / 2f;
+            if (Keyboard.current[k].wasPressedThisFrame)
+            {
+                if (k == currentKey)
+                    CorrectInput();
+                else
+                    WrongInput();
 
-            if (diff <= halfZoneAngle)
-            {
-                Success();
-            }
-            else
-            {
-                Fail();
+                return;
             }
         }
     }
-
-    void Success()
+    
+    void StartNewSession()
     {
-        hits++;
-        
-        speed = Mathf.Min(speed + speedIncrease, maxSpeed);
-        
-        currentZoneSize = Mathf.Max(currentZoneSize - zoneShrink, minZoneSize);
-        
-        zoneStart = Random.Range(0f, 360f);
-        UpdateSuccessZone();
-        UpdateCounter();
-
-        if (hits >= hitsToWin)
-        {
-            if (targetObject) targetObject.SetActive(false);
-            EndQTE();
-        }
+        correctIndex = 0;
+        targetRounds = Random.Range(minRounds, maxRounds + 1);
+        currentRounds = 0;
+        circleFill.fillAmount = 0f;
+        NextKey();
     }
-
-    void Fail()
+    
+    public void StartQTEFromTrigger()
     {
-        fails++;
-        if (fails >= maxFails)
-        {
-            ResetQTE();
-        }
-    }
-
-    void UpdateCounter()
-    {
-        if (counterText)
-            counterText.text = $"{hits}/{hitsToWin}";
-    }
-
-    void ResetQTE()
-    {
-        hits = 0;
-        fails = 0;
-        speed = baseSpeed;
-        currentAngle = 0;
-        currentZoneSize = initialZoneSize;
-        zoneStart = Random.Range(0f, 360f);
-        UpdateSuccessZone();
-        UpdateCounter();
-    }
-
-    void UpdateSuccessZone()
-    {
-        if (!successZone) return;
-        
-        successZone.fillMethod = Image.FillMethod.Radial360;
-        successZone.fillOrigin = 0;
-        successZone.fillAmount = currentZoneSize-0.05f;
-        successZone.rectTransform.localEulerAngles = new Vector3(0, 0, -zoneStart);
-    }
-
-    public void StartQTE(GameObject target)
-    {
-        hitsToWin = Random.Range(1, maxHitsToWin+1);
-        targetObject = target;
-        ResetQTE();
+        StartNewSession();
         gameObject.SetActive(true);
-        active = true;
+        inputEnabled = true;
+    }
+    
+    void NextKey()
+    {
+        Key randomKey = validKeys[Random.Range(0, validKeys.Length)];
+        currentKey = randomKey;
+        keyText.text = randomKey.ToString();
     }
 
+    void CorrectInput()
+    {
+        currentRounds++;
+        PlaySound(correctSounds, ref correctIndex);
+        StartCoroutine(PopEffect());
+
+        float fill = (float)currentRounds / targetRounds;
+        circleFill.fillAmount = fill;
+
+        if (currentRounds >= targetRounds)
+        {
+            inputEnabled = false;
+            OnSuccess?.Invoke();
+            correctIndex = 0;
+            wrongIndex = 0;
+            return;
+        }
+
+        NextKey();
+    }
+    
+    void WrongInput()
+    {
+        correctIndex = 0;
+        PlaySound(wrongSounds, ref wrongIndex);
+        StartCoroutine(ShakeEffect());
+        StartNewSession();
+    }
+
+    void PlaySound(AudioClip[] list, ref int index)
+    {
+        audioSource.PlayOneShot(list[index]);
+
+        index++;
+        if (index >= list.Length)
+            index = 0;
+    }
+
+    IEnumerator PopEffect()
+    {
+        inputEnabled = false;
+
+        float t = 0;
+        while (t < popDuration)
+        {
+            t += Time.deltaTime;
+            float s = Mathf.Lerp(1f, popScale, t / popDuration);
+            circleAnim.localScale = new Vector3(s, s, 1);
+            yield return null;
+        }
+
+        t = 0;
+        while (t < popDuration)
+        {
+            t += Time.deltaTime;
+            float s = Mathf.Lerp(popScale, 1f, t / popDuration);
+            circleAnim.localScale = new Vector3(s, s, 1);
+            yield return null;
+        }
+
+        inputEnabled = true;
+    }
+    
+    IEnumerator ShakeEffect()
+    {
+        Vector2 original = circleAnim.anchoredPosition;
+
+        float timer = 0f;
+        while (timer < shakeDuration)
+        {
+            timer += Time.deltaTime;
+            float x = Random.Range(-shakeAmount, shakeAmount);
+            float y = Random.Range(-shakeAmount, shakeAmount);
+            circleAnim.anchoredPosition = original + new Vector2(x, y);
+            yield return null;
+        }
+        
+        circleAnim.anchoredPosition = original;
+    }
+    
     public void EndQTE()
     {
-        active = false;
         gameObject.SetActive(false);
+        inputEnabled = false;
     }
 }

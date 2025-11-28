@@ -27,6 +27,10 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float turnLayerSmoothSpeed = 5f;
     private float turnLayerWeight = 0f;
     
+    public StaminaBar stamina;
+    private bool wantsToRun = false;
+    public bool IsMoving => moveInput.sqrMagnitude > 0.01f;
+    
     void Start()
     {
         controller = GetComponent<CharacterController>();
@@ -40,14 +44,7 @@ public class PlayerMovement : MonoBehaviour
     
     public void OnRun(InputAction.CallbackContext context)
     {
-        if (context.performed)
-        {
-            speedMultiplier = runMult;
-        }
-        else
-        {
-            speedMultiplier = 1f;
-        }
+        wantsToRun = context.ReadValueAsButton();
     }
     
     public void OnLook(InputAction.CallbackContext context)
@@ -66,6 +63,15 @@ public class PlayerMovement : MonoBehaviour
     
     void Update()
     {
+        if (wantsToRun && stamina.CanRun)
+        {
+            speedMultiplier = runMult;
+        }
+        else
+        {
+            speedMultiplier = 1f;
+        }
+        
         Vector3 forward = cameraTransform.forward;
         Vector3 right = cameraTransform.right;
         
