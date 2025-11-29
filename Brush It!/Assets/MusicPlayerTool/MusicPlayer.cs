@@ -1,10 +1,13 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
 
 public class MusicPlayer : MonoBehaviour
 {
     private AudioSource _audioSource;
+    public AudioMixerGroup mixer;
     // these coroutines ensure we can restart any 'over time' processes
     private Coroutine _lerpVolumeRoutine = null;
     private Coroutine _stopRoutine = null;
@@ -15,6 +18,7 @@ public class MusicPlayer : MonoBehaviour
         _audioSource = gameObject.AddComponent<AudioSource>();
         _audioSource.loop = true;
         _audioSource.playOnAwake = true;
+        _audioSource.outputAudioMixerGroup = mixer;
     }
 
     public void Play(AudioClip musicTrack, float fadeTime)

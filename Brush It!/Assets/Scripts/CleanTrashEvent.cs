@@ -39,6 +39,8 @@ public class CleanTrashEvent : MonoBehaviour
 
     private Key[] validKeys = { Key.R, Key.T, Key.Y, Key.U };
     
+    private Coroutine shakeRoutine;
+    
     void Start()
     {
         StartNewSession();
@@ -150,19 +152,35 @@ public class CleanTrashEvent : MonoBehaviour
     
     IEnumerator ShakeEffect()
     {
+        // Si ya hay un shake corriendo, lo detenemos
+        if (shakeRoutine != null)
+            StopCoroutine(shakeRoutine);
+
+        shakeRoutine = StartCoroutine(DoShake());
+        yield return null;
+    }
+
+    IEnumerator DoShake()
+    {
         Vector2 original = circleAnim.anchoredPosition;
 
         float timer = 0f;
         while (timer < shakeDuration)
         {
             timer += Time.deltaTime;
+
             float x = Random.Range(-shakeAmount, shakeAmount);
             float y = Random.Range(-shakeAmount, shakeAmount);
+
             circleAnim.anchoredPosition = original + new Vector2(x, y);
+
             yield return null;
         }
-        
+
+        // Reset final garantizado
         circleAnim.anchoredPosition = original;
+
+        shakeRoutine = null;
     }
     
     public void EndQTE()

@@ -12,7 +12,7 @@ public class MusicManager : MonoBehaviour
 
     AudioClip _activeMusicTrack;
 
-    float _volume = 0.425f;
+    float _volume = 0.325f;
     public float Volume
     {
         get => _volume;

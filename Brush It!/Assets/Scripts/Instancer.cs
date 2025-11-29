@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 [ExecuteAlways]
 public class Instancer : MonoBehaviour
@@ -31,6 +33,17 @@ public class Instancer : MonoBehaviour
 
     private const int batchSize = 1023;
     private List<Matrix4x4[]> batches = new List<Matrix4x4[]>();
+
+
+    private void Start()
+    {
+        Generate();
+    }
+
+    private void Awake()
+    {
+        Generate();
+    }
 
     void OnValidate()
     {

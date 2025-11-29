@@ -205,6 +205,45 @@
                     "isPartOfComposite": false
                 }
             ]
+        },
+        {
+            "name": "Interaction",
+            "id": "050aa268-e3fb-4f16-babc-f14d26922f03",
+            "actions": [
+                {
+                    "name": "Interact",
+                    "type": "Button",
+                    "id": "9816a0fb-a43c-45b4-aca3-493a6695df2e",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "5d889f17-07bf-4da8-b363-31e859167929",
+                    "path": "<XInputController>/buttonWest",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Interact",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b2dc5402-65b8-4776-9b5a-e8e125f7e408",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Interact",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": []
