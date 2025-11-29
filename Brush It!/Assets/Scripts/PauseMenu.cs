@@ -9,6 +9,7 @@ public class PauseMenu : MonoBehaviour
     [SerializeField] private GameObject playerUI;
     [SerializeField] private GameObject timer;
     [SerializeField] private Key key = Key.Escape;
+    [SerializeField] private Animator animator;
     private bool showMenu = false;
     
     void Start()
@@ -27,17 +28,20 @@ public class PauseMenu : MonoBehaviour
         {
             pauseMenu.SetActive(true);
             playerUI.SetActive(false);
+            optionsMenu.SetActive(false);
             timer.SetActive(false);
             showMenu = true;
             Time.timeScale = 0;
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
-
+            foreach (var r in pauseMenu.GetComponentsInChildren<ResetSizeButtons>())
+                r.ResetSize();
         }
         else if (Keyboard.current[key].wasPressedThisFrame && showMenu) 
         {
             pauseMenu.SetActive(false);
             playerUI.SetActive(true);
+            optionsMenu.SetActive(false);
             timer.SetActive(true);
             showMenu = false;
             Time.timeScale = 1;
@@ -72,5 +76,11 @@ public class PauseMenu : MonoBehaviour
     {
         pauseMenu.SetActive(false);
         optionsMenu.SetActive(true);
+    }
+
+    public void CloseOptionsMenu()
+    {
+        pauseMenu.SetActive(true);
+        optionsMenu.SetActive(false);
     }
 }

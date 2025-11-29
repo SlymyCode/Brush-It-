@@ -40,9 +40,11 @@ public class CleanTrashEvent : MonoBehaviour
     private Key[] validKeys = { Key.R, Key.T, Key.Y, Key.U };
     
     private Coroutine shakeRoutine;
+    Vector2 original;
     
     void Start()
     {
+        var original = circleAnim.anchoredPosition;
         StartNewSession();
     }
 
@@ -55,9 +57,14 @@ public class CleanTrashEvent : MonoBehaviour
             if (Keyboard.current[k].wasPressedThisFrame)
             {
                 if (k == currentKey)
+                {
                     CorrectInput();
+                }
                 else
+                {
                     WrongInput();
+                    circleAnim.anchoredPosition = original;
+                }
 
                 return;
             }
@@ -152,7 +159,6 @@ public class CleanTrashEvent : MonoBehaviour
     
     IEnumerator ShakeEffect()
     {
-        // Si ya hay un shake corriendo, lo detenemos
         if (shakeRoutine != null)
             StopCoroutine(shakeRoutine);
 
@@ -176,8 +182,7 @@ public class CleanTrashEvent : MonoBehaviour
 
             yield return null;
         }
-
-        // Reset final garantizado
+        
         circleAnim.anchoredPosition = original;
 
         shakeRoutine = null;
