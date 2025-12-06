@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using TMPro;
 
 public class TrashTrigger : MonoBehaviour
 {
@@ -9,6 +10,8 @@ public class TrashTrigger : MonoBehaviour
     
     [SerializeField] private CleanTrashEvent miniGame;
     [SerializeField] private GameObject[] trashObjects;
+    [SerializeField] private Animator animator;
+    [SerializeField] private CarryTrashBag carryTrashBag;
 
     private bool playerInTrigger;
     private bool qteActive;
@@ -51,7 +54,7 @@ public class TrashTrigger : MonoBehaviour
     {
         if (!playerInTrigger) return;
 
-        if (pressed && !qteActive)
+        if (pressed && !qteActive && animator.GetLayerWeight(1) == 0 && !carryTrashBag.carryingBag)
         {
             qteActive = true;
             SubscribeToMiniGame();
@@ -80,32 +83,34 @@ public class TrashTrigger : MonoBehaviour
         UnsubscribeFromMiniGame();
         miniGame.gameObject.SetActive(false);
         qteActive = false;
+        miniGame.UpdateCounter();
+        carryTrashBag.carryTrashBag();
     }
 
     IEnumerator DisableObjects()
     {
-        yield return new WaitForSeconds(0.05f);
-        
-        foreach (var obj in trashObjects)
-        {
-            Collider[] cols3D = obj.GetComponentsInChildren<Collider>(true);
-            foreach (var c in cols3D) c.enabled = false;
-            
-            obj.SetActive(false);
-        }
-        
         Collider trigger = GetComponent<Collider>();
         if (trigger != null) trigger.enabled = false;
         else
         {
-            var any3d = GetComponentInChildren<Collider>();
-            if (any3d != null) any3d.enabled = false;
+            var any = GetComponentInChildren<Collider>();
+            if (any != null) any.enabled = false;
         }
         
         pressed = false;
         playerInTrigger = false;
-
-        yield break;
+        
+        yield return new WaitForSeconds(0.325f);
+        
+        foreach (var obj in trashObjects)
+        {
+            Collider[] colliders = obj.GetComponentsInChildren<Collider>(true);
+            foreach (var c in colliders) c.enabled = false;
+            
+            obj.SetActive(false);
+        }
+        
+        yield return new WaitForSeconds(0.325f);
     }
     
     private void HandleFail()
@@ -123,7 +128,7 @@ public class TrashTrigger : MonoBehaviour
         }
     }
     
-    private void SpawnDust()
+    public void SpawnDust()
     {
         particles.Emit(120);
     }

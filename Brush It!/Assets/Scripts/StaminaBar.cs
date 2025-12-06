@@ -10,6 +10,7 @@ public class StaminaBar : MonoBehaviour
     public Image staminaBar;
     public PlayerMovement player;
     private PlayerControls playerControls;
+    [SerializeField] private Animator animator;
     
     [SerializeField] private float drainRate = 0.25f;
     [SerializeField] private float regenRate = 0.20f;
@@ -44,7 +45,7 @@ public class StaminaBar : MonoBehaviour
             return;
         }
         
-        if (CanRun && pressingShift && Stamina > stopThreshold && player.IsMoving)
+        if (CanRun && pressingShift && Stamina > stopThreshold && player.IsMoving && animator.GetLayerWeight(1) == 0 && animator.GetLayerWeight(2) == 0)
         {
             Drain();
             

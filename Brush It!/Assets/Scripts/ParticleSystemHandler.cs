@@ -8,6 +8,7 @@ public class ParticleSystemHandler : MonoBehaviour
     [SerializeField] private new ParticleSystem particleSystem;
     public StaminaBar stamina;
     public PlayerMovement player;
+    [SerializeField] private Animator animator;
     private bool shiftPressed = false;
     
     IEnumerator ParticleEmission()
@@ -23,7 +24,7 @@ public class ParticleSystemHandler : MonoBehaviour
     
     private void Update()
     {
-        if (shiftPressed && stamina.CanRun && player.IsMoving)
+        if (shiftPressed && stamina.CanRun && player.IsMoving && animator.GetLayerWeight(1) == 0 && animator.GetLayerWeight(2) == 0)
         {
             StartCoroutine(ParticleEmission());
         }

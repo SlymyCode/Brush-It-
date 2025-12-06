@@ -64,24 +64,6 @@ public class Instancer : MonoBehaviour
 
     public void Generate()
     {
-        if (!surfaceMesh || !surfaceTransform)
-        {
-            Debug.LogWarning("GrassInstancer: falta asignar mesh o transform del suelo.");
-            return;
-        }
-
-        if (useMask && maskTexture == null)
-        {
-            Debug.LogWarning("useMask está activado pero maskTexture es null.");
-        }
-        
-    #if UNITY_EDITOR
-        if (useMask && maskTexture != null && !maskTexture.isReadable)
-        {
-            Debug.LogWarning("La maskTexture debe tener Read/Write Enabled en sus import settings.");
-        }
-    #endif
-
         Random.InitState(seed);
         batches.Clear();
 

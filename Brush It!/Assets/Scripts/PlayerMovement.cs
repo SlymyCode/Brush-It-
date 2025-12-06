@@ -20,13 +20,6 @@ public class PlayerMovement : MonoBehaviour
     private PlayerInput playerInput;
     private float speedMultiplier = 1f;
     
-    private Vector2 lookInput;
-    private float turnValue = 0f;
-    [SerializeField] private float turningSpeed = 10f;
-    
-    [SerializeField] private float turnLayerSmoothSpeed = 5f;
-    private float turnLayerWeight = 0f;
-    
     public StaminaBar stamina;
     private bool wantsToRun = false;
     public bool IsMoving => moveInput.sqrMagnitude > 0.01f;
@@ -47,23 +40,9 @@ public class PlayerMovement : MonoBehaviour
         wantsToRun = context.ReadValueAsButton();
     }
     
-    public void OnLook(InputAction.CallbackContext context)
-    {
-        lookInput = context.ReadValue<Vector2>();
-    }
-
-    //Jump no usado
-   public void Jump()
-    {
-        if (Keyboard.current.spaceKey.wasPressedThisFrame && controller.isGrounded)
-        {
-            velocity.y = Mathf.Sqrt(2 * -2f * gravity);
-        }
-    }
-    
     void Update()
     {
-        if (wantsToRun && stamina.CanRun)
+        if (wantsToRun && stamina.CanRun && animator.GetLayerWeight(1) == 0 && animator.GetLayerWeight(2) == 0)
         {
             speedMultiplier = runMult;
         }
@@ -116,30 +95,32 @@ public class PlayerMovement : MonoBehaviour
         
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
-        
-        if (moveInput.sqrMagnitude > 0.01f)
+
+        if ((animator.GetLayerWeight(1) > 0 || animator.GetLayerWeight(2) > 0) && moveInput.sqrMagnitude > 0.01f)
+        {
+            float strength = 0.5f;
+            speedMultiplier = 1f;
+            animator.SetFloat("MovementStrength", strength, walkTransition, Time.deltaTime);
+        }
+        else if ((animator.GetLayerWeight(1) > 0 || animator.GetLayerWeight(2) > 0) && moveInput.sqrMagnitude < 0.01f)
+        {
+            float strength = 0;
+            speedMultiplier = 1f;
+            animator.SetFloat("MovementStrength", strength, toIdleTransition, Time.deltaTime);
+        }
+        else if (moveInput.sqrMagnitude > 0.01f)
         {
             float strength = (speedMultiplier > 1f) ? 1f : 0.5f;
             animator.SetFloat("MovementStrength", strength, walkTransition, Time.deltaTime);
-            turnLayerWeight = Mathf.Lerp(turnLayerWeight, 0f, turnLayerSmoothSpeed * Time.deltaTime);
         }
         else if (moveInput.sqrMagnitude > 0.5f)
         {
             float strength = (speedMultiplier > 1f) ? 1f : 0.5f;
             animator.SetFloat("MovementStrength", strength, runTransition, Time.deltaTime);
-            turnLayerWeight = Mathf.Lerp(turnLayerWeight, 0f, turnLayerSmoothSpeed * Time.deltaTime);
         }
         else
         {
             animator.SetFloat("MovementStrength", 0f, toIdleTransition, Time.deltaTime);
-            turnLayerWeight = Mathf.Lerp(turnLayerWeight, 0.8f, turnLayerSmoothSpeed * Time.deltaTime);
         }
-        
-        float rawTurn = Mathf.Clamp(lookInput.x, -1f, 1f);
-        turnValue = Mathf.Lerp(turnValue, rawTurn, turningSpeed * Time.deltaTime);
-
-        animator.SetFloat("Turn", turnValue);
-        
-        animator.SetLayerWeight(1, turnLayerWeight);
     }
 }

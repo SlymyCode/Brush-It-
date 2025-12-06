@@ -5,21 +5,29 @@ using UnityEngine.InputSystem;
 
 public class Timer : MonoBehaviour
 {
-    [SerializeField] Key key = Key.T;
     [SerializeField] private TextMeshProUGUI timerText;
-    [SerializeField] private float remainingTime;
+    [SerializeField] private NPCInteraction npc;
+    public float remainingTime;
     private bool showTimer;
-
+    private bool timerStarted;
+    
     void Start()
     {
+        timerStarted = true;
         showTimer = true;
     }
     
     void Update()
     {
-        if (Keyboard.current[key].wasPressedThisFrame)
+        if (npc.playing == true && timerStarted)
         {
             StartCoroutine(StartTimer());
+            timerStarted = false;
+        }
+
+        if (npc.gameFinished)
+        {
+            StopAllCoroutines();
         }
     }
 
@@ -44,8 +52,7 @@ public class Timer : MonoBehaviour
 
             yield return null;
         }
-
-        // Cuando llegue a 0
+        
         if (showTimer)
             timerText.text = "00:00";
         else

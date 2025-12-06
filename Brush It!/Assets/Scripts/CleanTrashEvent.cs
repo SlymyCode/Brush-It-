@@ -1,14 +1,31 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.LowLevel;
+using Random = UnityEngine.Random;
+using TMPro;
 
 public class CleanTrashEvent : MonoBehaviour
 {
-    public Image circleFill;           
-    public RectTransform circleAnim;   
-    public TextMeshProUGUI keyText;    
+    public Image circleFill; 
+    public RectTransform circleAnim;
+    
+    public bool controllerMode = false;
+    
+    public Image keyImage;
+    
+    public Sprite spriteR;
+    public Sprite spriteT;
+    public Sprite spriteY;
+    public Sprite spriteU;
+    
+    public Sprite spriteX;
+    public Sprite spriteY_btn;
+    public Sprite spriteA;
+    public Sprite spriteB;
     
     public int minRounds = 3;
     public int maxRounds = 7;
@@ -30,43 +47,87 @@ public class CleanTrashEvent : MonoBehaviour
     private int wrongIndex = 0;
 
 
-    private Key currentKey;
+    private Key currentKeyKeyboard;
+    private GamepadButton currentKeyGamepad;
 
     bool inputEnabled = true;
 
     public System.Action OnSuccess;
     public System.Action OnFail;
-
-    private Key[] validKeys = { Key.R, Key.T, Key.Y, Key.U };
+    
+    private Key[] validKeysKeyboard = { Key.R, Key.T, Key.Y, Key.U };
+    
+    private GamepadButton[] validButtonsGamepad = {
+        GamepadButton.North,
+        GamepadButton.West,
+        GamepadButton.South,
+        GamepadButton.East
+    };
+    
+    private Dictionary<Key, Sprite> keySpritesKeyboard;
+    private Dictionary<GamepadButton, Sprite> keySpritesGamepad;
     
     private Coroutine shakeRoutine;
     Vector2 original;
+    public Toggle controllerToggle;
     
-    void Start()
+    [SerializeField] private TextMeshProUGUI trashBagsCount;
+    public int trashBagsCollected;
+    
+    public void ControllerModeEnabled()
     {
-        var original = circleAnim.anchoredPosition;
-        StartNewSession();
+        controllerMode = !controllerMode;
+    }
+    
+    void Awake()
+    {
+        keySpritesKeyboard = new Dictionary<Key, Sprite>()
+        {
+            { Key.R, spriteR },
+            { Key.T, spriteT },
+            { Key.Y, spriteY },
+            { Key.U, spriteU },
+        };
+
+        keySpritesGamepad = new Dictionary<GamepadButton, Sprite>()
+        {
+            { GamepadButton.West,  spriteX },
+            { GamepadButton.North, spriteY_btn },
+            { GamepadButton.South, spriteA },
+            { GamepadButton.East,  spriteB },
+        };
     }
 
     void Update()
     {
         if (!inputEnabled) return;
-        
-        foreach (var k in validKeys)
-        {
-            if (Keyboard.current[k].wasPressedThisFrame)
-            {
-                if (k == currentKey)
-                {
-                    CorrectInput();
-                }
-                else
-                {
-                    WrongInput();
-                    circleAnim.anchoredPosition = original;
-                }
 
-                return;
+        if (!controllerMode)
+        {
+            foreach (var key in validKeysKeyboard)
+            {
+                if (Keyboard.current[key].wasPressedThisFrame)
+                {
+                    if (key == currentKeyKeyboard)
+                        CorrectInput();
+                    else
+                        WrongInput();
+                    return;
+                }
+            }
+        }
+        else if (Gamepad.current != null)
+        {
+            foreach (var btn in validButtonsGamepad)
+            {
+                if (Gamepad.current[btn].wasPressedThisFrame)
+                {
+                    if (btn == currentKeyGamepad)
+                        CorrectInput();
+                    else
+                        WrongInput();
+                    return;
+                }
             }
         }
     }
@@ -88,11 +149,20 @@ public class CleanTrashEvent : MonoBehaviour
     }
     
     void NextKey()
+{
+    if (!controllerMode)
     {
-        Key randomKey = validKeys[Random.Range(0, validKeys.Length)];
-        currentKey = randomKey;
-        keyText.text = randomKey.ToString();
+        Key randomKey = validKeysKeyboard[Random.Range(0, validKeysKeyboard.Length)];
+        currentKeyKeyboard = randomKey;
+        keyImage.sprite = keySpritesKeyboard[randomKey];
     }
+    else
+    {
+        GamepadButton randomBtn = validButtonsGamepad[Random.Range(0, validButtonsGamepad.Length)];
+        currentKeyGamepad = randomBtn;
+        keyImage.sprite = keySpritesGamepad[randomBtn];
+    }
+}
 
     void CorrectInput()
     {
@@ -192,5 +262,11 @@ public class CleanTrashEvent : MonoBehaviour
     {
         gameObject.SetActive(false);
         inputEnabled = false;
+    }
+
+    public void UpdateCounter()
+    {
+        trashBagsCollected += 1;
+        trashBagsCount.text = $"{trashBagsCollected}/5";  
     }
 }
